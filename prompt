@@ -1,0 +1,10 @@
+The purpose of the app is to provide alerts, based on configurable stock indicators, to help trading.
+The app must provide those features:
+    - An editable list of stocks to watch
+    - SQLite database to save the stock indicators alerts configuration, and stock watchlist
+    - periodicaly caclulate the indicators and trigger the alerts based on the configured result
+    - expose a webserver to edit the various settings (watchlist, alerts, etc)
+    - send alerts by telegram
+    - a base list of indicator (MACD, BB, RSI, SMA, MA Cross)
+    - a backtest bench, to simulate the strategy on historic data
+Provide all the necessary code so that the software is ready to work and we can iterate after.
