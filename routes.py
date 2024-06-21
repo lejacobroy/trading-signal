@@ -1,30 +1,25 @@
 from flask import request, jsonify
-from database import get_db
-from models import Stock, Alert
+from database import get_db_connection, add_stock, add_alert, get_stocks
+from flask import render_template, redirect, url_for
+
 
 def configure_routes(app):
-    @app.route('/stocks', methods=['GET', 'POST'])
-    def manage_stocks():
-        db = get_db()
-        if request.method == 'POST':
-            data = request.json
-            stock = Stock(symbol=data['symbol'])
-            db.session.add(stock)
-            db.session.commit()
-            return jsonify({'message': 'Stock added'}), 201
-        else:
-            stocks = Stock.query.all()
-            return jsonify([stock.to_dict() for stock in stocks])
-
-    @app.route('/alerts', methods=['GET', 'POST'])
-    def manage_alerts():
-        db = get_db()
-        if request.method == 'POST':
-            data = request.json
-            alert = Alert(stock_id=data['stock_id'], indicator=data['indicator'], threshold=data['threshold'])
-            db.session.add(alert)
-            db.session.commit()
-            return jsonify({'message': 'Alert added'}), 201
-        else:
-            alerts = Alert.query.all()
-            return jsonify([alert.to_dict() for alert in alerts])
+    @app.route("/", methods=["GET", "POST"])
+    def index():
+        if request.method == "POST":
+            action = request.form.get("action")
+            if action == "add_stock":
+                symbol = request.form.get("symbol")
+                add_stock(symbol)
+                return render_template("index.html", message="Stock added successfully")
+            elif action == "set_alert":
+                stock_id = request.form.get("stock_id")
+                indicator = request.form.get("indicator")
+                threshold = request.form.get("threshold")
+                add_alert(stock_id, indicator, threshold)
+        stocks = get_stocks()
+        print(stocks)
+        indicators = ["MACD", "BB", "RSI", "SMA", "MA Cross"]
+        return render_template(
+            "index.html", stocks=stocks, indicators=indicators, message=None
+        )

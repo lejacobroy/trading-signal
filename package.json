@@ -1,0 +1,15 @@
+{
+  "name": "flask-tailwind",
+  "version": "1.0.0",
+  "description": "Flask application with Tailwind CSS",
+  "main": "index.js",
+  "scripts": {
+    "build": "tailwindcss build src/styles.css -o static/css/tailwind.css"
+  },
+  "dependencies": {
+    "tailwindcss": "^2.2.19"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
+}

@@ -1,21 +1,45 @@
 import pandas as pd
 
+
 def calculate_macd(data):
-    # MACD calculation logic
-    pass
+    short_window = 12
+    long_window = 26
+    signal_window = 9
+    data["short_mavg"] = data["close"].ewm(span=short_window, adjust=False).mean()
+    data["long_mavg"] = data["close"].ewm(span=long_window, adjust=False).mean()
+    data["macd"] = data["short_mavg"] - data["long_mavg"]
+    data["signal_line"] = data["macd"].ewm(span=signal_window, adjust=False).mean()
+    return data["macd"].iloc[-1] - data["signal_line"].iloc[-1]
+
 
 def calculate_bb(data):
-    # Bollinger Bands calculation logic
-    pass
+    window = 20
+    data["sma"] = data["close"].rolling(window=window).mean()
+    data["stddev"] = data["close"].rolling(window=window).std()
+    data["upper_band"] = data["sma"] + (data["stddev"] * 2)
+    data["lower_band"] = data["sma"] - (data["stddev"] * 2)
+    return data["close"].iloc[-1] - data["upper_band"].iloc[-1]
+
 
 def calculate_rsi(data):
-    # RSI calculation logic
-    pass
+    window = 14
+    delta = data["close"].diff(1)
+    gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
+    rs = gain / loss
+    rsi = 100 - (100 / (1 + rs))
+    return rsi.iloc[-1]
+
 
 def calculate_sma(data):
-    # SMA calculation logic
-    pass
+    window = 50
+    sma = data["close"].rolling(window=window).mean()
+    return sma.iloc[-1]
+
 
 def calculate_ma_cross(data):
-    # MA Cross calculation logic
-    pass
+    short_window = 50
+    long_window = 200
+    data["short_mavg"] = data["close"].rolling(window=short_window).mean()
+    data["long_mavg"] = data["close"].rolling(window=long_window).mean()
+    return data["short_mavg"].iloc[-1] - data["long_mavg"].iloc[-1]
