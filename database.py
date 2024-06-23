@@ -20,10 +20,9 @@ def create_tables():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS alert (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            stock_id INTEGER NOT NULL,
+            stock_id INTEGER,
             indicator TEXT NOT NULL,
-            threshold REAL NOT NULL,
-            FOREIGN KEY (stock_id) REFERENCES stock (id)
+            threshold REAL NOT NULL
         )
     ''')
     conn.commit()
@@ -36,9 +35,15 @@ def get_stocks():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM stock")
-    stocks = cursor.fetchall()
+    rows = cursor.fetchall()
+    stocks = []
+    for row in rows:
+        stocks.append({
+            "id": row[0],
+            "symbol": row[1]
+        })
     conn.close()
-    return to_dict(stocks)
+    return stocks
 
 def add_stock(symbol):
     conn = get_db_connection()
@@ -46,6 +51,56 @@ def add_stock(symbol):
     cursor.execute("INSERT INTO stock (symbol) VALUES (?)", (symbol,))
     conn.commit()
     conn.close()
+    
+def get_stock(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM stock where id = ?", (id,))
+    row = cursor.fetchone()
+    conn.close()
+    stock = {
+            "id": row[0],
+            "symbol": row[1]
+        }
+    return stock
+
+def del_stock(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM alert where stock_id = ? and stock_id IS NOT NULL", (id,))
+    cursor.execute("DELETE FROM stock where id = ?", (id,))
+    conn.close()
+    return True
+
+def get_alerts():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM alert")
+    rows = cursor.fetchall()
+    alerts = []
+    for row in rows:
+        alerts.append({
+            "id": row[0],
+            "stock_id": row[1],
+            "indicator": row[2],
+            "threshold": row[3]
+        })
+    conn.close()
+    return alerts
+
+def get_alert(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM alert where id = ?", (id,))
+    row = cursor.fetchone()
+    conn.close()
+    alert = {
+            "id": row[0],
+            "stock_id": row[1],
+            "indicator": row[2],
+            "threshold": row[3]
+        }
+    return alert
 
 def add_alert(stock_id, indicator, threshold):
     conn = get_db_connection()
@@ -56,3 +111,10 @@ def add_alert(stock_id, indicator, threshold):
     )
     conn.commit()
     conn.close()
+    
+def del_alert(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM alert where id = ?", (id,))
+    conn.close()
+    return True

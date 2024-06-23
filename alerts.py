@@ -1,5 +1,4 @@
-from database import get_db_connection
-from models import to_dict
+from database import get_alerts, get_stock, get_stocks
 from indicators import (
     calculate_macd,
     calculate_bb,
@@ -7,53 +6,68 @@ from indicators import (
     calculate_sma,
     calculate_ma_cross,
 )
+import yfinance as yf
+import pandas as pd
 from telegram import send_telegram_message
 
 
 def check_alerts():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM alert")
-    alerts = cursor.fetchall()
-    conn.close()
-    conn = get_db_connection()
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM stock WHERE id = ?", (alert["stock_id"],))
-        stock = cursor.fetchone()
-        conn.close()
-    cursor.execute("SELECT * FROM alert")
-        if alert["indicator"] == "MACD":
-    conn.close()
-        elif alert["indicator"] == "BB":
-        conn = get_db_connection()
-        elif alert["indicator"] == "RSI":
-        cursor.execute("SELECT * FROM stock WHERE id = ?", (alert["stock_id"],))
-        elif alert["indicator"] == "SMA":
-        conn.close()
-        elif alert["indicator"] == "MA Cross":
-        if alert["indicator"] == "MACD":
-        elif alert.indicator == "BB":
-        if result >= alert["threshold"]:
-        elif alert.indicator == "RSI":
-                f"Alert triggered for {stock['symbol']}: {alert['indicator']} crossed {alert['threshold']}"
-        elif alert.indicator == "SMA":
-        elif alert["indicator"] == "SMA":
-        elif alert.indicator == "MA Cross":
-        elif alert["indicator"] == "MA Cross":
+    alerts = get_alerts()
+    for alert in alerts:
+        if alert["stock_id"] is None or alert["stock_id"] == "" or alert["stock_id"] == "ANY_ALL":
+            print("Checking %s alert for all stocks" % alert['indicator'])
+            stocks = get_stocks()
+            for stock in stocks:
+                check_single_alert(alert, stock['symbol'])
+        else:
+            stock = get_stock(alert["stock_id"])
+            check_single_alert(alert, stock['symbol'])
 
-        if result >= alert.threshold:
-        if result >= alert["threshold"]:
-                f"Alert triggered for {stock.symbol}: {alert.indicator} crossed {alert.threshold}"
-                f"Alert triggered for {stock['symbol']}: {alert['indicator']} crossed {alert['threshold']}"
+def check_single_alert(alert, stock):
+    stock_data = fetch_stock_data(ticker=stock, interval='1h')
+    if alert["indicator"] == "MACD":
+        print("Checking MACD alert for stock:", stock)
+        data = calculate_macd(stock_data)
+        ## cross
+        if data > alert["threshold"]:
+            send_telegram_message(
+                f"MACD alert for {stock} is triggered at {data['macd']}"
+            )
+            print("MACD alert triggered for stock:", stock)
+        else:
+            print("MACD alert not triggered for stock:", stock)
+    
+    if alert["indicator"] == "BB":
+        print("Checking BB alert for stock:", stock)
+        data = calculate_bb(stock_data)
+    
+    if alert["indicator"] == "RSI":
+        print("Checking RSI alert for stock:", stock)
+        data = calculate_rsi(stock_data)
+    
+    if alert["indicator"] == "SMA":
+        print("Checking SMA alert for stock:", stock)
+        data = calculate_sma(stock_data)
+    
+    if alert["indicator"] == "MA Cross":
+        print("Checking MA Cross alert for stock:", stock)
+        data = calculate_ma_cross(stock_data)
+    
+    if alert["indicator"] == "MACD":
+        print("Checking MACD alert for stock:", stock)
+        data = calculate_macd(stock_data)
+    print(data)
 
-
-def fetch_stock_data(symbol):
-    import requests
-    import pandas as pd
-
-    api_url = f"https://api.example.com/stocks/{symbol}/data"
-    response = requests.get(api_url)
-    data = response.json()
+def fetch_stock_data(ticker, interval):
+    # Fetches real-time data for the given ticker
+    data = yf.download(tickers=[ticker], period="5d", interval=interval, progress=False)
     df = pd.DataFrame(data)
     return df
+
+def fetch_historic_stock_data(ticker):
+    # Fetches real-time data for the given ticker
+    data = yf.download(tickers=[ticker], period="1mo", interval="15m", progress=False)
+    return pd.DataFrame(data)
+
+if __name__ == "__main__":
+    check_alerts()

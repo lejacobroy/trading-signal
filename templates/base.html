@@ -9,6 +9,15 @@
 </head>
 <body class="bg-gray-100 text-gray-900">
     <div class="container mx-auto px-4">
+        <div class="mt-5">
+            <h1 class="display-4 mb-4">Stock Alert System</h1>
+            {% if message %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span>
+            </div>
+            {% endif %}
+            <a href="{{ url_for('stocks') }}" class="btn btn-link">Manage Stocks</a>
+            <a href="{{ url_for('alerts') }}" class="btn btn-link ml-2">Manage Alerts</a>
         {% block content %}
         {% endblock %}
     </div>

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Stocks{% endblock %}
+
+{% block content %}
+    <div class="mt-5">
+        <h2 class="h4 mb-3">Current Stocks</h2>
+        <ul>
+            {% for stock in stocks %}
+            <li class="list-group-item"><a href="{{ url_for('stock', id=stock.id) }}">{{ stock.symbol }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="mt-5">
+        <h2 class="h4 mb-3">Add Stock</h2>
+        <form action="{{ url_for('stock_add') }}" method="post" class="mb-3">
+            <input type="hidden" name="action" value="add_stock">
+            <input type="text" name="symbol" placeholder="Enter stock symbol" class="form-control mb-2">
+            <button type="submit" class="btn btn-primary">Add Stock</button>
+        </form>
+    </div>
+    {% include 'alert_add.html' with context %}
+{% endblock %}
