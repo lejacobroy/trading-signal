@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def calculate_macd(data):
     short_window = 12
@@ -27,17 +28,36 @@ def calculate_rsi(data):
     rsi = 100 - (100 / (1 + rs))
     return rsi.iloc[-1]
 
-def calculate_sma(data):
-    window = 50
+def calculate_sma(data, window):
     sma = data["Close"].rolling(window=window).mean()
     return sma.iloc[-1]
 
-def calculate_ma_cross(data):
-    short_window = 50
-    long_window = 200
+def calculate_ma_cross(data, short_window, long_window):
     data["short_mavg"] = data["Close"].rolling(window=short_window).mean()
     data["long_mavg"] = data["Close"].rolling(window=long_window).mean()
-    return data["short_mavg"].iloc[-1] - data["long_mavg"].iloc[-1]
+
+    # Calculate the difference between short and long moving averages
+    diff = data["short_mavg"] - data["long_mavg"]
+
+    # Check if the sign of the difference changes (crossover occurred)
+    crossover = np.diff(np.sign(diff))
+
+    # Get the last values of short and long moving averages
+    short_mavg = data["short_mavg"].iloc[-1]
+    long_mavg = data["long_mavg"].iloc[-1]
+
+    # Determine the crossover flag
+    if len(crossover) > 0:
+        if crossover[-1] == 2:  # Short MA crossed above Long MA
+            crossed = 1
+        elif crossover[-1] == -2:  # Short MA crossed below Long MA
+            crossed = -1
+        else:
+            crossed = 0
+    else:
+        crossed = 0
+
+    return short_mavg, long_mavg, crossed
 
 
 

@@ -1,7 +1,7 @@
 from flask import Flask
 from routes import configure_routes
 import os
-from database import create_tables
+from database import create_tables, seed_db
 
 
 def create_app():
@@ -13,4 +13,5 @@ def create_app():
     app.config["STATIC_FOLDER"] = os.path.join(os.getcwd(), "static")
     app.config["TEMPLATE_FOLDER"] = os.path.join(os.getcwd(), "templates")
     create_tables()
+    seed_db()
     return app

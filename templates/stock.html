@@ -4,27 +4,18 @@
 
 {% block content %}
     
-    <div class="mt-5">
-        <h2 class="h4 mb-3">Set Alert</h2>
+<div class="mt-5">
+    <hr>
+    {% include 'stock_settings.html' with context %}
+    <hr>
+    <h2 class="h4 mb-3">Set Alert</h2>
     <form action="{{ url_for('alert_add') }}" method="post" class="mb-3">
-            <input type="hidden" name="action" value="set_alert">
         <div class="mb-3">
             <input type="hidden" name="stock_id" value="{{ stock.id }}">
             <label for="stock_id" class="form-label">Stock : {{ stock.symbol }}</label>
         </div>
-        <div class="mb-3">
-            <label for="indicator" class="form-label">Select Indicator</label>
-            <select name="indicator" id="indicator" class="form-select">
-                    {% for indicator in indicators %}
-                    <option value="{{ indicator }}">{{ indicator }}</option>
-                    {% endfor %}
-                </select>
-        </div>
-        <div class="mb-3">
-            <label for="threshold" class="form-label">Threshold</label>
-            <input type="text" name="threshold" id="threshold" placeholder="Enter threshold value" class="form-control">
-        </div>
+        {% include 'alert_indicators.html' with context %}
         <button type="submit" class="btn btn-primary">Set Alert</button>
-        </form>
-    </div>
+    </form>
+</div>
 {% endblock %}

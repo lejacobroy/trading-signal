@@ -1,28 +1,16 @@
 <div class="mt-5">
     <h2 class="h4 mb-3">Add Alert</h2>
-<form action="{{ url_for('alert_add') }}" method="post" class="mb-3">
-        <input type="hidden" name="action" value="set_alert">
-    <div class="mb-3">
-        <label for="stock_id" class="form-label">Select Stock</label>
-        <select name="stock_id" id="stock_id" class="form-select">
+    <form action="{{ url_for('alert_add') }}" method="post" class="mb-3">
+        <div class="mb-3">
+            <label for="stock_id" class="form-label">Select Stock</label>
+            <select name="stock_id" id="stock_id" class="form-select">
                 <option value="ANY_ALL">ANY/ALL</option>
-                {% for stock in stocks %}
+                {% for stock in data.stocks %}
                 <option value="{{ stock.id }}">{{ stock.symbol }}</option>
                 {% endfor %}
             </select>
         </div>
-    <div class="mb-3">
-        <label for="indicator" class="form-label">Select Indicator</label>
-        <select name="indicator" id="indicator" class="form-select">
-                {% for indicator in indicators %}
-                <option value="{{ indicator }}">{{ indicator }}</option>
-                {% endfor %}
-            </select>
-        </div>
-    <div class="mb-3">
-        <label for="threshold" class="form-label">Threshold</label>
-        <input type="text" name="threshold" id="threshold" placeholder="Enter threshold value" class="form-control">
-        </div>
-    <button type="submit" class="btn btn-primary">Set Alert</button>
+        {% include 'alert_indicators.html' with context %}
+        <button type="submit" class="btn btn-primary">Set Alert</button>
     </form>
 </div>

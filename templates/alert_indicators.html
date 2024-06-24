@@ -1,0 +1,38 @@
+<div class="row">
+    <div class="mb-3">
+        <label for="indicator" class="form-label">Select Indicator</label>
+        <select name="indicator" id="indicator" class="form-select">
+            {% for indicator in data.indicators %}
+            <option value="{{ indicator.id }}">{{ indicator.name }} - {{ indicator.display_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="period" class="form-label">Select Period</label>
+        <select name="period" id="period" class="form-select">
+            {% for period in data.periods %}
+            <option value="{{ period.id }}">{{ period.name }} - {{ period.display_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="interval" class="form-label">Select Interval</label>
+        <select name="interval" id="interval" class="form-select">
+            {% for interval in data.intervals %}
+            <option value="{{ interval.id }}">{{ interval.name }} - {{ interval.display_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="action" class="form-label">Select Action</label>
+        <select name="action" id="action" class="form-select">
+            <option value="Higher">Higher than</option>
+            <option value="Lower">Lower than</option>
+            <option value="Cross">Cross</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="threshold" class="form-label">Threshold</label>
+        <input type="text" name="threshold" id="threshold" placeholder="Enter threshold value" class="form-control">
+    </div>
+</div>

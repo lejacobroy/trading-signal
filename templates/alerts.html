@@ -6,7 +6,7 @@
     <div class="mt-5">
         <h2 class="h4 mb-3">Current Alerts</h2>
         <ul>
-            {% for alert in alerts %}
+            {% for alert in data.alerts %}
             <li class="list-group-item"><a href="{{ url_for('alert', id=alert.id) }}">{{ alert.indicator }}</a></li>
             {% endfor %}
         </ul>

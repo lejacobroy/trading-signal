@@ -7,3 +7,4 @@ python-telegram-bot==20.3
 requests==2.31.0
 SQLAlchemy==2.0.15
 yfinance
+python-dotenv
