@@ -94,18 +94,18 @@ def check_single_alert(alert, stock):
         print("Checking MA Cross alert for stock:", stock)
         short_mavg, long_mavg, crossed = calculate_ma_cross(data=stock_data, short_window=9, long_window=21)
         print("MA Cross Short:", short_mavg, "Long:", long_mavg, "Crossed:", crossed)
+        if alert.action == 'Cross':
+            if crossed == 1:  # Short MA crossed above Long MA
+                send_telegram_message(
+                    f"Bullish MA Cross alert for {stock}: Short MA ({short_mavg}) crossed above Long MA ({long_mavg})"
+                )
+                print("Bullish MA Cross alert triggered for stock:", stock)
 
-        if crossed == 1:  # Short MA crossed above Long MA
-            send_telegram_message(
-                f"Bullish MA Cross alert for {stock}: Short MA ({short_mavg}) crossed above Long MA ({long_mavg})"
-            )
-            print("Bullish MA Cross alert triggered for stock:", stock)
-
-        if crossed == -1:  # Short MA crossed below Long MA
-            send_telegram_message(
-                f"Bearish MA Cross alert for {stock}: Short MA ({short_mavg}) crossed below Long MA ({long_mavg})"
-            )
-            print("Bearish MA Cross alert triggered for stock:", stock)
+            if crossed == -1:  # Short MA crossed below Long MA
+                send_telegram_message(
+                    f"Bearish MA Cross alert for {stock}: Short MA ({short_mavg}) crossed below Long MA ({long_mavg})"
+                )
+                print("Bearish MA Cross alert triggered for stock:", stock)
             
     if result:
         send_telegram_message(
