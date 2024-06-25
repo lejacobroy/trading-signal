@@ -16,4 +16,4 @@ services:
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
     volumes:
       - .:/app
-    command: python scheduler.py
+    command: [python, -u, "scheduler.py"]
