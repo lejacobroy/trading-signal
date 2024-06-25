@@ -7,6 +7,10 @@
 <div class="mt-5">
     <hr>
     {% include 'stock_settings.html' with context %}
+    <form action="{{ url_for('stock_check', id=stock.id) }}" method="post" class="mb-3">
+            <input type="hidden" name="stock_id" value="{{ stock.id }}">
+        <button type="submit" class="btn btn-primary">Verify stock alerts</button>
+    </form>
     <hr>
     <h2 class="h4 mb-3">Set Alert</h2>
     <form action="{{ url_for('alert_add') }}" method="post" class="mb-3">

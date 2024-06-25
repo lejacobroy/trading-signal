@@ -12,9 +12,9 @@ from database import (
     get_periods,
     get_intervals
 )
+from alerts import check_alerts
 from models import Alert
 from flask import render_template, redirect, url_for
-
 
 def get_base_data():
     stocks = get_stocks()
@@ -48,6 +48,15 @@ def configure_routes(app):
         message = None
         data = get_base_data()
         stock = get_stock(id=id)
+        return render_template("stock.html", stock=stock, data=data, message=message)
+    
+    @app.route("/stocks/check/<id>", methods=["POST"])
+    def stock_check(id):
+        message = None
+        data = get_base_data()
+        stock = get_stock(id=id)
+        check_alerts()
+        message="Stock checked successfully"
         return render_template("stock.html", stock=stock, data=data, message=message)
     
     @app.route("/stocks/remove/<id>", methods=["POST"])
