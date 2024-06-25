@@ -7,3 +7,4 @@ __pycache__
 .DS_Store
 database.db
 .env
+docker-compose.yml
