@@ -43,15 +43,14 @@ def check_single_alert(alert, stock):
         except Exception as e:
             print(f"Error calculating RSI for {stock}: {e}")
             return
-        if crossed:
-            if alert.action == "Higher":
-                if rsi_value >= alert.threshold:
-                    result = True
-                    value = rsi_value.round(2)
-            if alert.action == "Lower":
-                if rsi_value <= alert.threshold:
-                    result = True
-                    value = rsi_value.round(2)
+        if alert.action == "Higher" and crossed == 1:
+            if rsi_value >= alert.threshold:
+                result = True
+                value = rsi_value.round(2)
+        if alert.action == "Lower" and crossed == -1:
+            if rsi_value <= alert.threshold:
+                result = True
+                value = rsi_value.round(2)
     
     if indicator["name"] == "PRICE":
         print("Checking PRICE alert for stock:", stock)
@@ -93,25 +92,24 @@ def check_single_alert(alert, stock):
         except Exception as e:
             print(f"Error calculating SMA50 for {stock}: {e}")
             return
-        if crossed:
-            if alert.threshold == "PRICE":
-                if alert.action == "Higher":
-                    if sma_value >= stock_data["Close"].iloc[-1]:
-                        result = True
-                        value = sma_value.round(2)
-                if alert.action == "Lower":
-                    if sma_value <= stock_data["Close"].iloc[-1]:
-                        result = True
-                        value = sma_value.round(2)
-            else:
-                if alert.action == "Higher":
-                    if sma_value >= alert.threshold:
-                        result = True
-                        value = sma_value.round(2)
-                if alert.action == "Lower":
-                    if sma_value <= alert.threshold:
-                        result = True
-                        value = sma_value.round(2)
+        if alert.threshold == "PRICE":
+            if alert.action == "Higher" and crossed == 1:
+                if sma_value >= stock_data["Close"].iloc[-1]:
+                    result = True
+                    value = sma_value.round(2)
+            if alert.action == "Lower" and crossed == -1:
+                if sma_value <= stock_data["Close"].iloc[-1]:
+                    result = True
+                    value = sma_value.round(2)
+        else:
+            if alert.action == "Higher" and crossed == 1:
+                if sma_value >= alert.threshold:
+                    result = True
+                    value = sma_value.round(2)
+            if alert.action == "Lower" and crossed == -1:
+                if sma_value <= alert.threshold:
+                    result = True
+                    value = sma_value.round(2)
     
     if indicator["name"] == "SMA200":
         print("Checking SMA200 alert for stock:", stock)
@@ -147,10 +145,13 @@ def check_single_alert(alert, stock):
         except Exception as e:
             print(f"Error calculating MACD for {stock}: {e}")
             return
-        if crossed:
-            if macd_value > alert.threshold:
-                result = True
-                value = macd_value.round(2)
+        if alert.action == "Cross":
+            if alert.threshold == "BULL" and crossed == 1:
+                    result = True
+                    value = macd_value.round(2)
+            if alert.threshold == "BEAR" and crossed == -1:
+                    result = True
+                    value = macd_value.round(2)
     
     if indicator["name"] == "BB":
         print("Checking BB alert for stock:", stock)
