@@ -34,100 +34,137 @@ def check_single_alert(alert, stock):
         print(f"Error fetching stock data for {stock}: {e}")
         return
     result = False
+    value = 0
     
     if indicator["name"] == "RSI":
         print("Checking RSI alert for stock:", stock)
         try:
-            data = calculate_rsi(stock_data)
+            rsi_value, crossed = calculate_rsi(stock_data)
         except Exception as e:
             print(f"Error calculating RSI for {stock}: {e}")
             return
-        print("RSI ", data)
-        if alert.action == "Higher":
-            if data >= alert.threshold:
-                result = True
-        if alert.action == "Lower":
-            if data <= alert.threshold:
-                result = True
+        if crossed:
+            if alert.action == "Higher":
+                if rsi_value >= alert.threshold:
+                    result = True
+                    value = rsi_value.round(2)
+            if alert.action == "Lower":
+                if rsi_value <= alert.threshold:
+                    result = True
+                    value = rsi_value.round(2)
     
     if indicator["name"] == "PRICE":
         print("Checking PRICE alert for stock:", stock)
         try:
-            data = stock_data["Close"].iloc[-1]
+            current_price = stock_data["Close"].iloc[-1]
+            previous_price = stock_data["Close"].iloc[-2]
         except Exception as e:
             print(f"Error getting PRICE for {stock}: {e}")
             return
-        print("PRICE ", data)
-        if alert.action == "Higher":
-            if data >= alert.threshold:
+
+        # Calculate the difference between current and previous prices
+        diff = current_price - previous_price
+
+        # Check if the sign of the difference changes (crossover occurred)
+        crossover = 0
+        if diff > 0:
+            if alert.action == "Higher":
+                crossover = 1  # Price crossed higher
+            else:
+                crossover = -1  # Price crossed lower
+        elif diff < 0:
+            if alert.action == "Lower":
+                crossover = 1  # Price crossed lower
+            else:
+                crossover = -1  # Price crossed higher
+
+        if alert.action == "Higher" and crossover == 1 and current_price >= alert.threshold:
                 result = True
-        if alert.action == "Lower":
-            if data <= alert.threshold:
+                value = current_price.round(2)
+        if alert.action == "Lower" and crossover == -1 and current_price <= alert.threshold:
                 result = True
+                value = current_price.round(2)
+
     
     if indicator["name"] == "SMA50":
         print("Checking SMA50 alert for stock:", stock)
         try:
-            data = calculate_sma(data=stock_data, window=50)
+            sma_value, crossed = calculate_sma(data=stock_data, window=50)
         except Exception as e:
             print(f"Error calculating SMA50 for {stock}: {e}")
             return
-        if alert.threshold == "PRICE":
-            if alert.action == "Higher":
-                try:
-                    if data >= stock_data["Close"].iloc[-1]:
+        if crossed:
+            if alert.threshold == "PRICE":
+                if alert.action == "Higher":
+                    if sma_value >= stock_data["Close"].iloc[-1]:
                         result = True
-                except Exception as e:
-                    print(f"Error comparing SMA50 and PRICE for {stock}: {e}")
-                    return
-            if alert.action == "Lower":
-                try:
-                    if data <= stock_data["Close"].iloc[-1]:
+                        value = sma_value.round(2)
+                if alert.action == "Lower":
+                    if sma_value <= stock_data["Close"].iloc[-1]:
                         result = True
-                except Exception as e:
-                    print(f"Error comparing SMA50 and PRICE for {stock}: {e}")
-                    return
-        print("SMA50 ", data)
+                        value = sma_value.round(2)
+            else:
+                if alert.action == "Higher":
+                    if sma_value >= alert.threshold:
+                        result = True
+                        value = sma_value.round(2)
+                if alert.action == "Lower":
+                    if sma_value <= alert.threshold:
+                        result = True
+                        value = sma_value.round(2)
     
     if indicator["name"] == "SMA200":
         print("Checking SMA200 alert for stock:", stock)
         try:
-            data = calculate_sma(data=stock_data, window=200)
+            sma_value, crossed = calculate_sma(data=stock_data, window=200)
         except Exception as e:
             print(f"Error calculating SMA200 for {stock}: {e}")
             return
-        print("SMA200 ", data)
+        if crossed:
+            if alert.threshold == "PRICE":
+                if alert.action == "Higher":
+                    if sma_value >= stock_data["Close"].iloc[-1]:
+                        result = True
+                        value = sma_value.round(2)
+                if alert.action == "Lower":
+                    if sma_value <= stock_data["Close"].iloc[-1]:
+                        result = True
+                        value = sma_value.round(2)
+            else:
+                if alert.action == "Higher":
+                    if sma_value >= alert.threshold:
+                        result = True
+                        value = sma_value.round(2)
+                if alert.action == "Lower":
+                    if sma_value <= alert.threshold:
+                        result = True
+                        value = sma_value.round(2)
         
     if indicator["name"] == "MACD":
         print("Checking MACD alert for stock:", stock)
         try:
-            data = calculate_macd(stock_data)
+            macd_value, signal_value, crossed = calculate_macd(stock_data)
         except Exception as e:
             print(f"Error calculating MACD for {stock}: {e}")
             return
-        ## cross
-        if data > alert.threshold:
-            try:
-                send_telegram_message(
-                    f"MACD alert for {stock} is triggered at {data['macd']}"
-                )
-            except Exception as e:
-                print(f"Error sending MACD alert for {stock}: {e}")
-            print("MACD alert triggered for stock:", stock)
-        else:
-            print("MACD alert not triggered for stock:", stock)
+        if crossed:
+            if macd_value > alert.threshold:
+                result = True
+                value = macd_value.round(2)
     
     if indicator["name"] == "BB":
         print("Checking BB alert for stock:", stock)
         try:
-            data = calculate_bb(stock_data)
+            upper_band_value, lower_band_value, crossed_upper, crossed_lower = calculate_bb(stock_data)
         except Exception as e:
             print(f"Error calculating BB for {stock}: {e}")
             return
-        print("BB ", data)
-        if data > 0:
-            # MACD is positive
-            pass
+        if alert.action == "Higher" and crossed_upper and stock_data["Close"].iloc[-1] >= upper_band_value:
+            result = True
+            value = upper_band_value.round(2)
+        if alert.action == "Lower" and crossed_lower and stock_data["Close"].iloc[-1] <= lower_band_value:
+            result = True
+            value = lower_band_value.round(2)
         
     if indicator["name"] == "MA_CROSS_9_21":
         print("Checking MA Cross alert for stock:", stock)
@@ -139,31 +176,20 @@ def check_single_alert(alert, stock):
         print("MA Cross Short:", short_mavg, "Long:", long_mavg, "Crossed:", crossed)
         if alert.action == 'Cross':
             if crossed == 1:  # Short MA crossed above Long MA
-                try:
-                    send_telegram_message(
-                        f"Bullish MA Cross alert for {stock}: Short MA ({short_mavg}) crossed above Long MA ({long_mavg})"
-                    )
-                except Exception as e:
-                    print(f"Error sending Bullish MA Cross alert for {stock}: {e}")
-                print("Bullish MA Cross alert triggered for stock:", stock)
-
+                result = True
+                value = short_mavg.round(2)
             if crossed == -1:  # Short MA crossed below Long MA
-                try:
-                    send_telegram_message(
-                        f"Bearish MA Cross alert for {stock}: Short MA ({short_mavg}) crossed below Long MA ({long_mavg})"
-                    )
-                except Exception as e:
-                    print(f"Error sending Bearish MA Cross alert for {stock}: {e}")
-                print("Bearish MA Cross alert triggered for stock:", stock)
+                result = True
+                value = short_mavg.round(2)
             
     if result:
         try:
             send_telegram_message(
-                f"{indicator['name']} alert for {stock} is triggered at {data}"
+                f"{indicator['name']} alert for {stock} is triggered {alert.action} at {value}"
             )
         except Exception as e:
             print(f"Error sending {indicator['name']} alert for {stock}: {e}")
-        print(indicator['name']," alert triggered for stock:", stock)
+        print(indicator['name']," alert for ", stock, " is triggered ", alert.action, " at ", value)
 
 def fetch_stock_data(ticker, period, interval):
     # Fetches real-time data for the given ticker
