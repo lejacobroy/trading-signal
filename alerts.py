@@ -43,7 +43,7 @@ def check_single_alert(alert, stock):
         except Exception as e:
             print(f"Error calculating RSI for {stock}: {e}")
             return
-        add_alert_result(id=alert.id, stock=stock, result=rsi_value)
+        add_alert_result(id=alert.id, stock=alert.stock_id, result=rsi_value)
         if alert.action == "Higher" and crossed == 1:
             if rsi_value >= alert.threshold:
                 result = True
@@ -61,7 +61,7 @@ def check_single_alert(alert, stock):
         except Exception as e:
             print(f"Error getting PRICE for {stock}: {e}")
             return
-        add_alert_result(id=alert.id, stock=stock, result=current_price)
+        add_alert_result(id=alert.id, stock=alert.stock_id, result=current_price)
         # Calculate the difference between current and previous prices
         diff = current_price - previous_price
 
@@ -93,7 +93,7 @@ def check_single_alert(alert, stock):
         except Exception as e:
             print(f"Error calculating SMA50 for {stock}: {e}")
             return
-        add_alert_result(id=alert.id, stock=stock, result=sma_value)
+        add_alert_result(id=alert.id, stock=alert.stock_id, result=sma_value)
         if alert.threshold == "PRICE":
             if alert.action == "Higher" and crossed == 1:
                 if sma_value >= stock_data["Close"].iloc[-1]:
@@ -120,7 +120,7 @@ def check_single_alert(alert, stock):
         except Exception as e:
             print(f"Error calculating SMA200 for {stock}: {e}")
             return
-        add_alert_result(id=alert.id, stock=stock, result=sma_value)
+        add_alert_result(id=alert.id, stock=alert.stock_id, result=sma_value)
         if crossed:
             if alert.threshold == "PRICE":
                 if alert.action == "Higher":
@@ -148,7 +148,7 @@ def check_single_alert(alert, stock):
         except Exception as e:
             print(f"Error calculating MACD for {stock}: {e}")
             return
-        add_alert_result(id=alert.id, stock=stock, result=macd_value)
+        add_alert_result(id=alert.id, stock=alert.stock_id, result=macd_value)
         if alert.action == "Cross":
             if alert.threshold == "BULL" and crossed == 1:
                     result = True
@@ -178,7 +178,7 @@ def check_single_alert(alert, stock):
         except Exception as e:
             print(f"Error calculating MA Cross for {stock}: {e}")
             return
-        add_alert_result(id=alert.id, stock=stock, result=crossed)
+        add_alert_result(id=alert.id, stock=alert.stock_id, result=crossed)
         print("MA Cross Short:", short_mavg, "Long:", long_mavg, "Crossed:", crossed)
         if alert.action == 'Cross':
             if crossed == 1:  # Short MA crossed above Long MA
