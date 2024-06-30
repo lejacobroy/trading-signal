@@ -7,7 +7,12 @@
         <h2 class="h4 mb-3">Current Stocks</h2>
         <ul>
             {% for stock in data.stocks %}
-            <li class="list-group-item"><a href="{{ url_for('stock', id=stock.id) }}">{{ stock.symbol }}</a></li>
+                <li class="list-group-item">
+                    <a href="{{ url_for('stock', id=stock.id) }}">{{ stock.symbol }}</a>
+                    <form action="{{ url_for('stock_remove', id=stock.id) }}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                    </form>
+                </li>
             {% endfor %}
         </ul>
     </div>

@@ -6,8 +6,13 @@
     <div class="mt-5">
         <h2 class="h4 mb-3">Current Alerts</h2>
         <ul>
-            {% for alert in data.alerts %}
-            <li class="list-group-item"><a href="{{ url_for('alert', id=alert.id) }}">{{ alert.stock_id }} - {{ alert.indicator_id }}</a></li>
+            {% for alert in data.alerts_details %}
+            <li class="list-group-item">
+                <a href="{{ url_for('alert', id=alert.id) }}">{{ alert.stock_symbol }} - {{ alert.indicator_name }}</a>
+                <form action="{{ url_for('alert_remove', id=alert.id) }}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                </form>
+            </li>
             {% endfor %}
         </ul>
     </div>

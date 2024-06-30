@@ -51,6 +51,14 @@ def create_tables():
             display_name TEXT NOT NULL
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS alert_result (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            alert_id INTEGER NOT NULL,
+            stock_id INTEGER NOT NULL,
+            result TEXT NOT NULL
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -323,6 +331,7 @@ def del_stock(id):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM alert where stock_id = ? and stock_id IS NOT NULL", (id,))
     cursor.execute("DELETE FROM stock where id = ?", (id,))
+    conn.commit()
     conn.close()
     return True
 
@@ -342,6 +351,87 @@ def get_alerts():
             action= row[5],
             threshold= row[6]
         ))
+    conn.close()
+    return alerts
+
+def get_alerts_details():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""SELECT 
+                    alert.id,
+                    alert.stock_id,
+                    coalesce(stock.symbol,'ANY/ALL') as stock_symbol,
+                    alert.indicator_id,
+                    indicator.name,
+                    alert.period_id,
+                    period.name,
+                    alert.interval_id,
+                    interval.name,
+                    alert.action,
+                    alert.threshold
+                   FROM alert
+                   inner join indicator on indicator.id = alert.indicator_id
+                   inner join period on period.id = alert.period_id
+                   inner join interval on interval.id = alert.interval_id
+                   left join stock on stock.id = alert.stock_id
+                   """)
+    rows = cursor.fetchall()
+    alerts = []
+    for row in rows:
+        alerts.append({
+            'id': row[0],
+            'stock_id': row[1],
+            'stock_symbol': row[2],
+            'indicator_id': row[3],
+            'indicator_name': row[4],
+            'period_id': row[5],
+            'period_name': row[6],
+            'interval_id': row[7],
+            'interval_name': row[8],
+            'action': row[9],
+            'threshold': row[10]
+        })
+    conn.close()
+    return alerts
+
+def get_alerts_by_stock(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""SELECT 
+                    alert.id,
+                    alert.stock_id,
+                    coalesce(stock.symbol,'ANY/ALL') as stock_symbol,
+                    alert.indicator_id,
+                    indicator.name,
+                    alert.period_id,
+                    period.name,
+                    alert.interval_id,
+                    interval.name,
+                    alert.action,
+                    alert.threshold
+                   FROM alert
+                   inner join indicator on indicator.id = alert.indicator_id
+                   inner join period on period.id = alert.period_id
+                   inner join interval on interval.id = alert.interval_id
+                   left join stock on stock.id = alert.stock_id
+                   WHERE alert.stock_id = %s OR alert.stock_id = 'ANY_ALL'
+                   """ % (id,))
+    rows = cursor.fetchall()
+    alerts = []
+    for row in rows:
+        alerts.append({
+            'id': row[0],
+            'stock_id': row[1],
+            'stock_symbol': row[2],
+            'indicator_id': row[3],
+            'indicator_name': row[4],
+            'period_id': row[5],
+            'period_name': row[6],
+            'interval_id': row[7],
+            'interval_name': row[8],
+            'action': row[9],
+            'threshold': row[10]
+        })
     conn.close()
     return alerts
 
@@ -376,5 +466,33 @@ def del_alert(id):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM alert where id = ?", (id,))
+    conn.commit()
     conn.close()
     return True
+
+def add_alert_result(id, stock, result):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "delete from alert_result where alert_id = ? and stock_id = ?",
+        (id, stock),
+    )
+    conn.commit()
+    cursor.execute(
+        "INSERT INTO alert_result (alert_id, stock_id, result) VALUES (?, ?, ?)",
+        (id, stock, result),
+    )
+    conn.commit()
+    conn.close()
+    
+def get_alert_result(id, stock):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""SELECT result
+                   FROM alert_result where alert_id = ? and stock_id = ?""", (id, stock))
+    row = cursor.fetchone()
+    conn.close()
+    result = 0
+    if row is not None:
+        result = row[0]
+    return result

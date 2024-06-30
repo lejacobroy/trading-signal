@@ -10,7 +10,10 @@ from database import (
     del_alert,
     get_indicators,
     get_periods,
-    get_intervals
+    get_intervals,
+    get_alerts_details,
+    get_alerts_by_stock,
+    get_alert_result
 )
 from alerts import check_alerts
 from models import Alert
@@ -19,6 +22,7 @@ from flask import render_template, redirect, url_for
 def get_base_data():
     stocks = get_stocks()
     alerts = get_alerts()
+    alerts_details = get_alerts_details()
     indicators = get_indicators()
     periods = get_periods()
     intervals = get_intervals()
@@ -28,6 +32,7 @@ def get_base_data():
         "indicators": indicators,
         "periods": periods,
         "intervals": intervals,
+        "alerts_details": alerts_details
     }
     return data
 
@@ -48,6 +53,19 @@ def configure_routes(app):
         message = None
         data = get_base_data()
         stock = get_stock(id=id)
+        data['stock_alerts'] = get_alerts_by_stock(id)
+        data["alerts_results"] = []
+        for alert in data['stock_alerts']:
+            result = {
+                'stock_symbol': stock['symbol'],
+                'indicator_name': alert['indicator_name'],
+                'period_name': alert['period_name'],
+                'interval_name': alert['interval_name'],
+                'action': alert['action'],
+                'threshold': alert['threshold'],
+                'result': get_alert_result(id=alert['id'], stock=stock['symbol'])
+            }
+            data['alerts_results'].append(result)
         return render_template("stock.html", stock=stock, data=data, message=message)
     
     @app.route("/stocks/check/<id>", methods=["POST"])
@@ -57,13 +75,12 @@ def configure_routes(app):
         stock = get_stock(id=id)
         check_alerts()
         message="Stock checked successfully"
-        return render_template("stock.html", stock=stock, data=data, message=message)
+        return redirect(url_for("stock", id=id, message=message))
     
     @app.route("/stocks/remove/<id>", methods=["POST"])
     def stock_remove(id):
         message = None
-        stock_id = request.form.get("stock_id")
-        del_stock(stock_id)
+        del_stock(id)
         message="Stock removed successfully"
         return redirect(url_for("stocks", message=message))
     
@@ -94,8 +111,8 @@ def configure_routes(app):
     @app.route("/alerts/remove/<id>", methods=["POST"])
     def alert_remove(id):
         message = None
-        alert_id = request.form.get("alert_id")
-        del_alert(alert_id)
+        print(id)
+        del_alert(id)
         message="Alert removed successfully"
         return redirect(url_for("alerts", message=message))
         
