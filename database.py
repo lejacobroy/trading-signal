@@ -478,6 +478,9 @@ def add_alert_result(id, stock, result):
         (id, stock),
     )
     conn.commit()
+    conn.close()
+    conn = get_db_connection()
+    cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO alert_result (alert_id, stock_id, result) VALUES (?, ?, ?)",
         (id, stock, result),
