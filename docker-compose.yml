@@ -5,12 +5,14 @@ services:
     build: .
     ports:
       - "4000:4000"
+    restart: unless-stopped
     volumes:
       - .:/app
     command: python main.py
   schedule:
     container_name: trading-signal-schedule
     build: .
+    restart: unless-stopped
     environment:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
