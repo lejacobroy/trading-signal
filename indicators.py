@@ -82,28 +82,11 @@ def calculate_rsi(data):
     loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
     rs = gain / loss
     rsi = 100 - (100 / (1 + rs))
-    
-    # Calculate the difference between RSI and threshold
-    diff = rsi - 30  # Assuming a threshold of 30 for overbought/oversold
-    
-    # Check if the sign of the difference changes (crossover occurred)
-    crossover = np.diff(np.sign(diff))
-    
+
     # Get the last value of RSI
     rsi_value = rsi.iloc[-1]
     
-    # Determine the crossover flag
-    if len(crossover) > 0:
-        if crossover[-1] == 2:  # RSI crossed above threshold
-            crossed = 1
-        elif crossover[-1] == -2:  # RSI crossed below threshold
-            crossed = -1
-        else:
-            crossed = 0
-    else:
-        crossed = 0
-    
-    return rsi_value, crossed
+    return rsi_value
 
 def calculate_sma(data, window):
     sma = data["Close"].rolling(window=window).mean()
