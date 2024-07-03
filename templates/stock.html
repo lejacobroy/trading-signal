@@ -9,20 +9,6 @@
     {% include 'stock_settings.html' with context %}
     <hr>
     <div class="mt-5">
-        <h2 class="h4 mb-3">Current Alerts</h2>
-        <ul>
-            {% for alert in data.stock_alerts %}
-            <li class="list-group-item">
-                <a href="{{ url_for('alert', id=alert.id) }}">{{ alert.stock_symbol }} - {{ alert.indicator_name }}</a>
-                <form action="{{ url_for('alert_remove', id=alert.id) }}" method="post" class="d-inline">
-                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                </form>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <div class="mt-5">
         <h2 class="h4 mb-3">Alert Results</h2>
         <table class="table">
             <thead>
@@ -33,6 +19,7 @@
                     <th>Action</th>
                     <th>Threshold</th>
                     <th>Result</th>
+                    <th>Remove</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,6 +31,9 @@
                     <td>{{ alert.action }}</td>
                     <td>{{ alert.threshold }}</td>
                     <td>{{ alert.result }}</td>
+                    <td><form action="{{ url_for('alert_remove', id=alert.id) }}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                    </form></td>
                 </tr>
                 {% endfor %}
             </tbody>
