@@ -1,4 +1,4 @@
-from database import get_alerts, get_stock, get_stocks, get_indicator, get_period, get_interval, add_alert_result
+from database import get_alerts, get_stock, get_stocks, get_indicator, get_period, get_interval, add_alert_result, get_alert_result
 from indicators import (
     calculate_macd,
     calculate_bb,
@@ -211,8 +211,12 @@ def check_single_alert(alert, stock):
             if crossed == -1:  # Short MA crossed below Long MA
                 result = True
                 value = short_mavg.round(2)
-            
-    if result:
+                
+    previous = get_alert_result(id=alert.id, stock=alert.stock_id)
+    if previous is None:
+        previous = 0
+        
+    if result and previous != value:
         try:
             send_telegram_message(
                 f"{indicator['name']} alert for {stock} is triggered {alert.action} at {value}"
