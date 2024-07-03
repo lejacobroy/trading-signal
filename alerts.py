@@ -186,7 +186,7 @@ def check_single_alert(alert, stock):
     if previous is None:
         previous = 0
         
-    if result and previous != value:
+    if result and (previous.round(2) != value.round(2)):
         print(previous, value)
         try:
             add_alert_result(id=alert.id, stock=alert.stock_id, result=value)

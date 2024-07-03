@@ -6,4 +6,4 @@ if __name__ == "__main__":
     while True:
         print("Checking Alerts")
         check_alerts()
-        time.sleep(300)  # Run every 5min
+        time.sleep(3600)  # Run every 1h
