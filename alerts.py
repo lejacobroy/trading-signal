@@ -187,14 +187,16 @@ def check_single_alert(alert, stock):
         previous = 0
         
     if result and previous != value:
+        print(previous, value)
         try:
             add_alert_result(id=alert.id, stock=alert.stock_id, result=value)
         except Exception as e:
             print(f"Error adding alert result for {stock}, {alert.id}, {value}: {e}")
             return
+        interval = get_interval(alert.interval_id)
         try:
             send_telegram_message(
-                f"{indicator['name']} alert for {stock} is triggered {alert.action} at {value}"
+                f"{indicator['name']} {interval['name']} alert for {stock} is triggered {alert.action} at {value}"
             )
         except Exception as e:
             print(f"Error sending {indicator['name']} alert for {stock}: {e}")
