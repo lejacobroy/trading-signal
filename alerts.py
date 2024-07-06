@@ -19,29 +19,29 @@ def check_alerts():
             print("Checking alert %s for all stocks" % alert.indicator_id)
             stocks = get_stocks()
             for stock in stocks:
-                check_single_alert(alert, stock['symbol'])
+                check_single_alert(alert, stock['id'])
         else:
-            stock = get_stock(alert.stock_id)
-            check_single_alert(alert, stock['symbol'])
+            check_single_alert(alert, stock['id'])
 
 def check_single_alert(alert, stock):
+    symbol = get_stock(stock)
     indicator = get_indicator(alert.indicator_id)
     period = get_period(alert.period_id)
     interval = get_interval(alert.interval_id)
     try:
-        stock_data = fetch_stock_data(ticker=stock, period=period['name'], interval=interval['name'])
+        stock_data = fetch_stock_data(ticker=symbol, period=period['name'], interval=interval['name'])
     except Exception as e:
-        print(f"Error fetching stock data for {stock}: {e}")
+        print(f"Error fetching stock data for {symbol}: {e}")
         return
     result = False
     value = 0
     
     if indicator["name"] == "RSI":
-        print("Checking RSI alert for stock:", stock)
+        print("Checking RSI alert for stock:", symbol)
         try:
             rsi_value = calculate_rsi(stock_data)
         except Exception as e:
-            print(f"Error calculating RSI for {stock}: {e}")
+            print(f"Error calculating RSI for {symbol}: {e}")
             return
         if alert.action == "Higher":
             if rsi_value >= alert.threshold:
@@ -53,12 +53,12 @@ def check_single_alert(alert, stock):
                 value = rsi_value.round(2)
     
     if indicator["name"] == "PRICE":
-        print("Checking PRICE alert for stock:", stock)
+        print("Checking PRICE alert for stock:", symbol)
         try:
             current_price = stock_data["Close"].iloc[-1]
             previous_price = stock_data["Close"].iloc[-2]
         except Exception as e:
-            print(f"Error getting PRICE for {stock}: {e}")
+            print(f"Error getting PRICE for {symbol}: {e}")
             return
         # Calculate the difference between current and previous prices
         diff = current_price - previous_price
@@ -85,11 +85,11 @@ def check_single_alert(alert, stock):
 
     
     if indicator["name"] == "SMA50":
-        print("Checking SMA50 alert for stock:", stock)
+        print("Checking SMA50 alert for stock:", symbol)
         try:
             sma_value, crossed = calculate_sma(data=stock_data, window=50)
         except Exception as e:
-            print(f"Error calculating SMA50 for {stock}: {e}")
+            print(f"Error calculating SMA50 for {symbol}: {e}")
             return
         if alert.threshold == "PRICE":
             if alert.action == "Higher" and crossed == 1:
@@ -111,11 +111,11 @@ def check_single_alert(alert, stock):
                     value = sma_value.round(2)
     
     if indicator["name"] == "SMA200":
-        print("Checking SMA200 alert for stock:", stock)
+        print("Checking SMA200 alert for stock:", symbol)
         try:
             sma_value, crossed = calculate_sma(data=stock_data, window=200)
         except Exception as e:
-            print(f"Error calculating SMA200 for {stock}: {e}")
+            print(f"Error calculating SMA200 for {symbol}: {e}")
             return
         if crossed:
             if alert.threshold == "PRICE":
@@ -138,11 +138,11 @@ def check_single_alert(alert, stock):
                         value = sma_value.round(2)
         
     if indicator["name"] == "MACD":
-        print("Checking MACD alert for stock:", stock)
+        print("Checking MACD alert for stock:", symbol)
         try:
             macd_value, signal_value, crossed = calculate_macd(stock_data)
         except Exception as e:
-            print(f"Error calculating MACD for {stock}: {e}")
+            print(f"Error calculating MACD for {symbol}: {e}")
             return
         if alert.action == "Cross":
             if alert.threshold == "BULL" and crossed == 1:
@@ -153,11 +153,11 @@ def check_single_alert(alert, stock):
                     value = macd_value.round(2)
     
     if indicator["name"] == "BB":
-        print("Checking BB alert for stock:", stock)
+        print("Checking BB alert for stock:", symbol)
         try:
             upper_band_value, lower_band_value, crossed_upper, crossed_lower = calculate_bb(stock_data)
         except Exception as e:
-            print(f"Error calculating BB for {stock}: {e}")
+            print(f"Error calculating BB for {symbol}: {e}")
             return
         if alert.action == "Higher" and crossed_upper and stock_data["Close"].iloc[-1] >= upper_band_value:
             result = True
@@ -167,11 +167,11 @@ def check_single_alert(alert, stock):
             value = lower_band_value.round(2)
         
     if indicator["name"] == "MA_CROSS_9_21":
-        print("Checking MA Cross alert for stock:", stock)
+        print("Checking MA Cross alert for stock:", symbol)
         try:
             short_mavg, long_mavg, crossed = calculate_ma_cross(data=stock_data, short_window=9, long_window=21)
         except Exception as e:
-            print(f"Error calculating MA Cross for {stock}: {e}")
+            print(f"Error calculating MA Cross for {symbol}: {e}")
             return
         print("MA Cross Short:", short_mavg, "Long:", long_mavg, "Crossed:", crossed)
         if alert.action == 'Cross':
@@ -182,7 +182,7 @@ def check_single_alert(alert, stock):
                 result = True
                 value = short_mavg.round(2)
                 
-    previous = get_alert_result(id=alert.id, stock=alert.stock_id)
+    previous = get_alert_result(id=alert.id, stock=stock)
     if previous is None:
         previous = 0
 
@@ -190,20 +190,19 @@ def check_single_alert(alert, stock):
         return
         
     if result:
-        print(previous, value)
         try:
-            add_alert_result(id=alert.id, stock=alert.stock_id, result=value)
+            add_alert_result(id=alert.id, stock=stock, result=value)
         except Exception as e:
-            print(f"Error adding alert result for {stock}, {alert.id}, {value}: {e}")
+            print(f"Error adding alert result for {symbol}, {alert.id}, {value}: {e}")
             return
         interval = get_interval(alert.interval_id)
         try:
             send_telegram_message(
-                f"{indicator['name']} {interval['name']} alert for {stock} is triggered {alert.action} at {value}"
+                f"{indicator['name']} {interval['name']} alert for {symbol} is triggered {alert.action} at {value}"
             )
         except Exception as e:
-            print(f"Error sending {indicator['name']} alert for {stock}: {e}")
-        print(indicator['name']," alert for ", stock, " is triggered ", alert.action, " at ", value)
+            print(f"Error sending {indicator['name']} alert for {symbol}: {e}")
+        print(indicator['name']," alert for ", symbol, " is triggered ", alert.action, " at ", value)
 
 def fetch_stock_data(ticker, period, interval):
     # Fetches real-time data for the given ticker
