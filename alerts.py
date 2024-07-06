@@ -24,7 +24,7 @@ def check_alerts():
             check_single_alert(alert, stock['id'])
 
 def check_single_alert(alert, stock):
-    symbol = get_stock(stock)
+    symbol = get_stock(stock)['symbol']
     indicator = get_indicator(alert.indicator_id)
     period = get_period(alert.period_id)
     interval = get_interval(alert.interval_id)
