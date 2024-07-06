@@ -63,7 +63,7 @@ def configure_routes(app):
                 'interval_name': alert['interval_name'],
                 'action': alert['action'],
                 'threshold': alert['threshold'],
-                'result': get_alert_result(id=alert['id'], stock=stock['symbol'])
+                'result': get_alert_result(id=alert['id'], stock=stock['id'])
             }
             data['alerts_results'].append(result)
         return render_template("stock.html", stock=stock, data=data, message=message)
