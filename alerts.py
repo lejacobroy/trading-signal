@@ -185,8 +185,11 @@ def check_single_alert(alert, stock):
     previous = get_alert_result(id=alert.id, stock=alert.stock_id)
     if previous is None:
         previous = 0
+
+    if str(previous) == str(value):
+        return
         
-    if result and (str(previous) != str(value)):
+    if result:
         print(previous, value)
         try:
             add_alert_result(id=alert.id, stock=alert.stock_id, result=value)
