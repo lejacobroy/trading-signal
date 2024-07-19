@@ -3,8 +3,10 @@
 ## why?
 
 after trying to time the market and play the game for numerous years, I realized that I was doing it wrong.
+My previous thesis was following behavioural finance, where prices (and trading entry/exit) follow people behaviours.
 My base thesis is now that the markets and rigged, manipulated by the market makers. They openly control the stock movements and follow their patterns.
 My goal is now to exploit this openly available data via indicators and simply follow the whales.
+Technical Analysis Indicators are in fact behavioural finance, since everyone uses them to change their behaviours and trade.
 Also, I do not have time to watch 10 stocks everyday.
 
 ## what is trading-signal?
