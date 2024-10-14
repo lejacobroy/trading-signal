@@ -21,6 +21,8 @@ I can then manualy decide to get into a trade of not.
 - [ ] Add a way to get reliable stock data
 - [ ] refine the indicator calculation
 - [ ] add a few bitcoin-only indicators
+- [x] display a nice graph of the indicators
+- [x] refactor indicators to return the whole dataframe
 - [x] display a table of the live indicators per stock
 - [x] separate the indicator by types and add to db
 - [x] add timeframe/period to indicator

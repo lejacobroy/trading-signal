@@ -18,6 +18,7 @@ from database import (
 from alerts import check_alerts
 from models import Alert
 from flask import render_template, redirect, url_for
+from graph import create_stock_graph
 
 def get_base_data():
     stocks = get_stocks()
@@ -66,7 +67,13 @@ def configure_routes(app):
                 'result': get_alert_result(id=alert['id'], stock=stock['id'])
             }
             data['alerts_results'].append(result)
-        return render_template("stock.html", stock=stock, data=data, message=message)
+        # Create the graph
+        fig = create_stock_graph(stock, data['stock_alerts'], False)
+        
+        # Convert the graph to HTML
+        graph_html = fig.to_html(full_html=False)
+        
+        return render_template("stock.html", stock=stock, data=data, graph=graph_html, message=message)
     
     @app.route("/stocks/check/<id>", methods=["POST"])
     def stock_check(id):
@@ -130,3 +137,16 @@ def configure_routes(app):
         add_alert(alert=alert)
         message="Alert added successfully"
         return redirect(url_for("alerts", message=message))
+
+    @app.route('/graph/<id>')
+    def stock_graph(id):
+        data = get_base_data()
+        stock = get_stock(id=id)
+        data['stock_alerts'] = get_alerts_by_stock(id)
+        # Create the graph
+        fig = create_stock_graph(stock, data['stock_alerts'], False)
+        
+        # Convert the graph to HTML
+        graph_html = fig.to_html(full_html=False)
+        
+        return render_template('graph.html', graph=graph_html, stock=stock)

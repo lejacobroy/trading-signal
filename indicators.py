@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def calculate_macd(data):
+def calculate_full_macd(data):
     short_window = 12
     long_window = 26
     signal_window = 9
@@ -9,7 +9,10 @@ def calculate_macd(data):
     data["long_mavg"] = data["Close"].ewm(span=long_window, adjust=False).mean()
     data["macd"] = data["short_mavg"] - data["long_mavg"]
     data["signal_line"] = data["macd"].ewm(span=signal_window, adjust=False).mean()
-    
+    return data
+
+def calculate_macd(data):
+    data = calculate_full_macd(data)
     # Calculate the difference between MACD and signal line
     diff = data["macd"] - data["signal_line"]
     
@@ -33,13 +36,16 @@ def calculate_macd(data):
     
     return macd_value, signal_value, crossed
 
-def calculate_bb(data):
+def calculate_full_bb(data):
     window = 20
     data["sma"] = data["Close"].rolling(window=window).mean()
     data["stddev"] = data["Close"].rolling(window=window).std()
     data["upper_band"] = data["sma"] + (data["stddev"] * 2)
     data["lower_band"] = data["sma"] - (data["stddev"] * 2)
-    
+    return data
+
+def calculate_bb(data):
+    data = calculate_full_bb(data)
     # Calculate the difference between price and upper/lower bands
     diff_upper = data["Close"] - data["upper_band"]
     diff_lower = data["Close"] - data["lower_band"]
@@ -75,22 +81,28 @@ def calculate_bb(data):
     
     return upper_band_value, lower_band_value, crossed_upper, crossed_lower
 
-def calculate_rsi(data):
+def calculate_full_rsi(data):
     window = 14
     delta = data["Close"].diff(1)
     gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
     rs = gain / loss
     rsi = 100 - (100 / (1 + rs))
+    return rsi
 
+def calculate_rsi(data):
+    rsi = calculate_full_rsi(data)
     # Get the last value of RSI
     rsi_value = rsi.iloc[-1]
     
     return rsi_value
 
-def calculate_sma(data, window):
+def calculate_full_sma(data, window):
     sma = data["Close"].rolling(window=window).mean()
-    
+    return sma
+
+def calculate_sma(data, window):
+    sma = calculate_full_sma(data, window)
     # Calculate the difference between price and SMA
     diff = data["Close"] - sma
     
@@ -113,10 +125,13 @@ def calculate_sma(data, window):
     
     return sma_value, crossed
 
-def calculate_ma_cross(data, short_window, long_window):
+def calculate_full_ma_cross(data, short_window, long_window):
     data["short_mavg"] = data["Close"].rolling(window=short_window).mean()
     data["long_mavg"] = data["Close"].rolling(window=long_window).mean()
+    return data
 
+def calculate_ma_cross(data, short_window, long_window):
+    data = calculate_full_ma_cross(data, short_window, long_window)
     # Calculate the difference between short and long moving averages
     diff = data["short_mavg"] - data["long_mavg"]
 
