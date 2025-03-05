@@ -27,7 +27,7 @@ def create_stock_graph(stock, alerts, limited=False):
             # 'action': row[9],
             # 'threshold': row[10]
     # Fetch data (you may want to adjust the period and interval)
-    data = yf.download(stock['symbol'], period="1y", interval="1d", auto_adjust=True, multi_level_index=False)
+    data = yf.download(stock['symbol'], period="1y", interval="1d", auto_adjust=True, multi_level_index=False, progress=False)
 
     # Create subplot structure
     fig = make_subplots(rows=4, cols=1, shared_xaxes=True, vertical_spacing=0.005,

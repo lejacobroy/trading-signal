@@ -208,7 +208,7 @@ def fetch_stock_data(ticker, period, interval):
     # Fetches real-time data for the given ticker
     # Period is the length of data, interval is the timeframe
     try:
-        data = yf.download(tickers=[ticker], period=period, interval=interval, progress=False)
+        data = yf.download(tickers=[ticker], period=period, interval=interval, progress=False, auto_adjust=True, multi_level_index=False,)
         df = pd.DataFrame(data)
         return df
     except Exception as e:
@@ -218,7 +218,7 @@ def fetch_stock_data(ticker, period, interval):
 def fetch_historic_stock_data(ticker):
     # Fetches real-time data for the given ticker
     try:
-        data = yf.download(tickers=[ticker], period="1mo", interval="15m", progress=False)
+        data = yf.download(tickers=[ticker], period="1mo", interval="15m", progress=False, auto_adjust=True, multi_level_index=False,)
         return pd.DataFrame(data)
     except Exception as e:
         print(f"Error fetching historic stock data for {ticker}: {e}")
