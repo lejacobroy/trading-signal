@@ -128,7 +128,7 @@ def create_stock_graph(stock, alerts, limited=False):
             x=data[mac_data['crossover'].notnull()].index, 
             y=data[data['crossover'].notnull()]['crossover'], 
             name='MA Cross', mode='markers', 
-            marker=dict(size=10, color='red', symbol='cross')), row=1, col=1)  
+            marker=dict(size=10, color='black', symbol='cross')), row=1, col=1)  
           
     # Add RSI, if it is present in the alerts
     rsi_present = True
